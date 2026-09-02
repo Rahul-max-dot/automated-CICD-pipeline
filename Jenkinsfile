@@ -28,7 +28,16 @@ pipeline {
 
         stage('Docker Push') {
             steps {
-                sh 'docker push $DOCKER_IMAGE:$BUILD_NUMBER'
+                withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-credentials',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+        )]) {
+            sh '''
+                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                docker push rahulhnb/automated-java-app:9
+            '''
+        }
             }
         }
 
