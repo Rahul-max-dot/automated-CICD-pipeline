@@ -1,7 +1,9 @@
+```groovy
 pipeline {
     agent any
 
-    environment {
+ 
+   environment {
         DOCKER_IMAGE = "rahulhnb/automated-java-app"
     }
 
@@ -55,6 +57,26 @@ pipeline {
             }
         }
 
+        stage('Minikube Setup') {
+            steps {
+                sh '''
+                    minikube status || minikube start --driver=docker
+
+                    kubectl config use-context minikube
+
+                    kubectl get nodes
+                '''
+            }
+        }
+
+        stage('Load Image into Minikube') {
+            steps {
+                sh '''
+                    minikube image load $DOCKER_IMAGE:$BUILD_NUMBER
+                '''
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
@@ -63,6 +85,8 @@ pipeline {
 
                     kubectl set image deployment/automated-cicd-pipeline \
                         automated-cicd-pipeline=$DOCKER_IMAGE:$BUILD_NUMBER
+
+                    kubectl rollout status deployment/automated-cicd-pipeline
                 '''
             }
         }
@@ -70,9 +94,20 @@ pipeline {
         stage('Verify') {
             steps {
                 sh '''
-                    kubectl rollout status deployment/automated-cicd-pipeline
+                    echo "Kubernetes Nodes:"
+                    kubectl get nodes
+
+                    echo "Pods:"
+                    kubectl get pods
+
+                    echo "Services:"
+                    kubectl get services
+
+                    echo "Deployment:"
+                    kubectl get deployment automated-cicd-pipeline
                 '''
             }
         }
     }
 }
+```
