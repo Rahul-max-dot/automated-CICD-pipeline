@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: automated-cicd-pipeline-service
+
+spec:
+  type: LoadBalancer
+
+  selector:
+    app: automated-cicd-pipeline
+
+  ports:
+  - port: 80
+    targetPort: 8080
