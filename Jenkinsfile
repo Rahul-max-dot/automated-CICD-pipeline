@@ -26,20 +26,38 @@ pipeline {
             }
         }
 
-        stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(
+        stage('Docker Login') {
+    steps {
+        withCredentials([usernamePassword(
             credentialsId: 'dockerhub-credentials',
             usernameVariable: 'rahulhnb',
             passwordVariable: 'dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s'
         )]) {
             sh '''
-                echo "dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s" | docker login -u "rahulhnb" --password-stdin
-                docker push rahulhnb/automated-java-app:9
+                echo "dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s" | docker login \
+                    -u "rahulhnb" \
+                    --password-stdin
             '''
         }
-            }
-        }
+    }
+}
+
+stage('Docker Build') {
+    steps {
+        sh '''
+            docker build \
+                -t rahulhnb/automated-java-app:${BUILD_NUMBER} .
+        '''
+    }
+}
+
+stage('Docker Push') {
+    steps {
+        sh '''
+            docker push rahulhnb/automated-java-app:${BUILD_NUMBER}
+        '''
+    }
+}
 
         stage('Deploy to Kubernetes') {
             steps {
