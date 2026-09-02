@@ -31,10 +31,10 @@ pipeline {
                 withCredentials([usernamePassword(
             credentialsId: 'dockerhub-credentials',
             usernameVariable: 'rahulhnb',
-            passwordVariable: 'dckr_pat_Wy_9PRNMfmZs5UHyTSQhIDkQtb8'
+            passwordVariable: 'dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s'
         )]) {
             sh '''
-                echo "dckr_pat_Wy_9PRNMfmZs5UHyTSQhIDkQtb8" | docker login -u "rahulhnb" --password-stdin
+                echo "dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s" | docker login -u "rahulhnb" --password-stdin
                 docker push rahulhnb/automated-java-app:9
             '''
         }
