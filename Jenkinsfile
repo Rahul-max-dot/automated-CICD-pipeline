@@ -20,56 +20,58 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Login') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:$BUILD_NUMBER .'
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'rahulhnb',
+                        passwordVariable: 'dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s'
+                    )
+                ]) {
+                    sh '''
+                        echo "dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s" | docker login \
+                            -u "$rahulhnb" \
+                            --password-stdin
+                    '''
+                }
             }
         }
 
-        stage('Docker Login') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-credentials',
-            usernameVariable: 'rahulhnb',
-            passwordVariable: 'dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s'
-        )]) {
-            sh '''
-                echo "dckr_pat_rbRK6y0-3-j3l4QvgsiAIxwGN-s" | docker login \
-                    -u "rahulhnb" \
-                    --password-stdin
-            '''
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    docker build \
+                        -t $DOCKER_IMAGE:$BUILD_NUMBER .
+                '''
+            }
         }
-    }
-}
 
-stage('Docker Build') {
-    steps {
-        sh '''
-            docker build \
-                -t rahulhnb/automated-java-app:${BUILD_NUMBER} .
-        '''
-    }
-}
-
-stage('Docker Push') {
-    steps {
-        sh '''
-            docker push rahulhnb/automated-java-app:${BUILD_NUMBER}
-        '''
-    }
-}
+        stage('Docker Push') {
+            steps {
+                sh '''
+                    docker push $DOCKER_IMAGE:$BUILD_NUMBER
+                '''
+            }
+        }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f Deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-                sh 'kubectl set image deployment/automated-cicd-pipeline automated-cicd-pipeline=$DOCKER_IMAGE:$BUILD_NUMBER'
+                sh '''
+                    kubectl apply -f Deployment.yaml
+                    kubectl apply -f service.yaml
+
+                    kubectl set image deployment/automated-cicd-pipeline \
+                        automated-cicd-pipeline=$DOCKER_IMAGE:$BUILD_NUMBER
+                '''
             }
         }
 
         stage('Verify') {
             steps {
-                sh 'kubectl rollout status deployment/automated-cicd-pipeline'
+                sh '''
+                    kubectl rollout status deployment/automated-cicd-pipeline
+                '''
             }
         }
     }
