@@ -30,11 +30,11 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
             credentialsId: 'dockerhub-credentials',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
+            usernameVariable: 'rahulhnb',
+            passwordVariable: 'Boss@8055'
         )]) {
             sh '''
-                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                echo "$DOCKER_PASS" | docker login -u "rahulhnb" --password-stdin
                 docker push rahulhnb/automated-java-app:9
             '''
         }
