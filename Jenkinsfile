@@ -60,7 +60,7 @@ pipeline {
         stage('Minikube Setup') {
             steps {
                 sh '''
-                    minikube status || minikube start --driver=docker
+                    minikube status || minikube start --driver=docker --force
 
                     kubectl config use-context minikube
 
