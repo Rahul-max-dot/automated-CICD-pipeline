@@ -34,7 +34,7 @@ pipeline {
             passwordVariable: 'dckr_pat_Wy_9PRNMfmZs5UHyTSQhIDkQtb8'
         )]) {
             sh '''
-                echo "$DOCKER_PASS" | docker login -u "rahulhnb" --password-stdin
+                echo "dckr_pat_Wy_9PRNMfmZs5UHyTSQhIDkQtb8" | docker login -u "rahulhnb" --password-stdin
                 docker push rahulhnb/automated-java-app:9
             '''
         }
